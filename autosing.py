@@ -15,7 +15,6 @@ def start(cookie, username):
     try:
         s = requests.session()
 
-        #flb_url = get_addr()
         
         flb_url = "www.wnflb2023.com"
         headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -56,14 +55,6 @@ def start(cookie, username):
     except Exception as e:
         print("签到失败，失败原因:"+str(e))
         send("签到结果", str(e))
-
-
-def get_addr():
-    pub_page = "https://fuliba-1251744788.file.myqcloud.com"
-    ret = requests.get(pub_page)
-    ret.encoding = "utf-8"
-    bbs_addr = re.findall(r'<a href=.*?><i>https://(.*?)</i></a>', ret.text)[1]
-    return bbs_addr
 
 
 if __name__ == '__main__':
