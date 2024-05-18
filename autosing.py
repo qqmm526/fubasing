@@ -1,32 +1,38 @@
 # -*- coding: utf8 -*-
 
 """
-cron: 30 5,12,18 * * *
+cron: 30 */4 * * *
 new Env('福利吧签到');
 """
 
 import requests
 import re
 import os, sys
-
+from sendNotify import send
 
 
 def start(cookie, username):
     try:
         s = requests.session()
 
-        
-        flb_url = "www.wnflb2023.com"
-        headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-                   'Accept - Encoding': 'gzip, deflate',
+        all_url = ['www.wnflb2023.com','www.wnflb00.com','www.wnflb99.com']        
+        for i in all_url:
+            temp_addr = "https://" + i
+            if s.get(temp_addr).status_code == 200:
+                flb_url = i
+                break
+                
+        headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                   'Accept-Encoding': 'gzip, deflate, br, zstd',
                    'Accept-Language': 'zh-CN,zh;q=0.9',
                    'cache-control': 'max-age=0',
-                   'Host': flb_url,
                    'Upgrade-Insecure-Requests': '1',
+                   'Host': flb_url,
                    'Cookie': cookie,
-                   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36 Edg/97.0.1072.62'}
+                   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'}
 
         # 访问Pc主页
+        print(flb_url)
         user_info = s.get('https://' + flb_url + '/forum.php?mobile=no', headers=headers).text
         user_name = re.search(r'title="访问我的空间">(.*?)</a>', user_info)
         if user_name:
@@ -50,16 +56,16 @@ def start(cookie, username):
         sing_day = re.search(r'<div class="tip_c">(.*?)</div>', user_info).group(1)
         log_info = "{}当前{}".format(sing_day, current_money)
         print(log_info)
-        
+        send("签到结果", log_info)
 
     except Exception as e:
         print("签到失败，失败原因:"+str(e))
-        
+        send("签到结果", str(e))
 
 
 if __name__ == '__main__':
-    # cookie = "此处填入COOKIE"
-    # username = "此处填入用户名"
+    # cookie = "cookie"
+    # user_name = "username"
     cookie = os.getenv("FUBA")
     user_name = os.getenv("FUBAUN")
     start(cookie, user_name)
